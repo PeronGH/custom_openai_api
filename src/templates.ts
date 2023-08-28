@@ -5,7 +5,7 @@ export type ChatCompletionParams = {
   id?: string;
   created?: number;
   model?: TiktokenModel;
-  content: string;
+  content?: string;
   finish_reason?: "stop" | "length" | null;
   prompt_tokens?: number;
 };
@@ -18,15 +18,18 @@ export function chatCompletion({
   finish_reason = "stop",
   prompt_tokens = 0,
 }: ChatCompletionParams) {
-  const encoder = cachedEncoderFor(model);
-  const completion_tokens = encoder.encode(content).length;
+  const completion_tokens = content
+    ? cachedEncoderFor(model).encode(content).length
+    : 0;
+
   const total_tokens = prompt_tokens + completion_tokens;
+
   return {
     id,
     "object": "chat.completion",
     created,
     model,
-    "choices": [{
+    "choices": content === undefined ? [] : [{
       "index": 0,
       "message": {
         "role": "assistant",
@@ -58,7 +61,7 @@ export function chatCompletionChunk(
     model,
     "choices": [{
       "index": 0,
-      "delta": finish_reason ? {} : { content },
+      "delta": (finish_reason || content === undefined) ? {} : { content },
       finish_reason,
     }],
   };

@@ -34,7 +34,6 @@ export class ChatCompletion {
     return chatCompletionChunk({
       id: this.#id,
       model: this.#model,
-      content: "",
       finish_reason,
     });
   }
