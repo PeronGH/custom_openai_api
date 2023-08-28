@@ -58,7 +58,7 @@ export function chatCompletionChunk(
     model,
     "choices": [{
       "index": 0,
-      "delta": { content },
+      "delta": finish_reason ? {} : { content },
       finish_reason,
     }],
   };

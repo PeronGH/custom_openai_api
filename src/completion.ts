@@ -21,11 +21,20 @@ export class ChatCompletion {
     this.#prompt_tokens = prompt_tokens;
   }
 
-  chunk(content: string, finish_reason: "stop" | "length" | null = null) {
+  chunk(content: string) {
     return chatCompletionChunk({
       id: this.#id,
       model: this.#model,
       content,
+      finish_reason: null,
+    });
+  }
+
+  endChunk(finish_reason: "stop" | "length" = "stop") {
+    return chatCompletionChunk({
+      id: this.#id,
+      model: this.#model,
+      content: "",
       finish_reason,
     });
   }
