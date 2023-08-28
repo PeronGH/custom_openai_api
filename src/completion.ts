@@ -15,7 +15,7 @@ export class ChatCompletion {
     id = `chatcmpl-${randomChars()}`,
     model = "gpt-3.5-turbo",
     prompt_tokens = 0,
-  }: Pick<ChatCompletionParams, "model" | "id" | "prompt_tokens">) {
+  }: Pick<ChatCompletionParams, "model" | "id" | "prompt_tokens"> = {}) {
     this.#id = id;
     this.#model = model;
     this.#prompt_tokens = prompt_tokens;
@@ -46,5 +46,15 @@ export class ChatCompletion {
       finish_reason,
       prompt_tokens: this.#prompt_tokens,
     });
+  }
+
+  static async *pipe(iterable: AsyncIterable<string>): AsyncIterableIterator<
+    ReturnType<typeof ChatCompletion["prototype"]["chunk"]>
+  > {
+    const completion = new ChatCompletion();
+    for await (const chunk of iterable) {
+      yield completion.chunk(chunk);
+    }
+    yield completion.endChunk();
   }
 }
