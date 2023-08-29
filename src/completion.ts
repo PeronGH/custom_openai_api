@@ -1,4 +1,7 @@
 import {
+  ServerSentEventStreamTarget,
+} from "https://deno.land/std@0.200.0/http/server_sent_event.ts";
+import {
   chatCompletion,
   chatCompletionChunk,
   ChatCompletionParams,
@@ -48,13 +51,62 @@ export class ChatCompletion {
     });
   }
 
-  static async *pipe(iterable: AsyncIterable<string>): AsyncIterableIterator<
+  async *pipe(iterable: AsyncIterable<string>): AsyncIterableIterator<
     ReturnType<typeof ChatCompletion["prototype"]["chunk"]>
   > {
-    const completion = new ChatCompletion();
     for await (const chunk of iterable) {
-      yield completion.chunk(chunk);
+      yield this.chunk(chunk);
     }
-    yield completion.endChunk();
+    yield this.endChunk();
+  }
+
+  asSSE() {
+    return new ChatCompletionSSE({
+      id: this.#id,
+      model: this.#model,
+      prompt_tokens: this.#prompt_tokens,
+    });
+  }
+}
+
+export class ChatCompletionSSE extends ChatCompletion {
+  #target = new ServerSentEventStreamTarget();
+
+  override chunk(content: string) {
+    const message = super.chunk(content);
+    this.#target.dispatchMessage(message);
+    return message;
+  }
+
+  override endChunk(finish_reason: "stop" | "length" = "stop") {
+    const message = super.endChunk(finish_reason);
+    this.#target.dispatchMessage(message);
+    return message;
+  }
+
+  override completion(
+    content: string,
+    finish_reason: "stop" | "length" = "stop",
+  ) {
+    const message = super.completion(content, finish_reason);
+    this.#target.dispatchMessage(message);
+    return message;
+  }
+
+  override async *pipe(iterable: AsyncIterable<string>): AsyncIterableIterator<
+    ReturnType<typeof ChatCompletion["prototype"]["chunk"]>
+  > {
+    for await (const chunk of iterable) {
+      const message = this.chunk(chunk);
+      this.#target.dispatchMessage(message);
+      yield message;
+    }
+    const endMessage = this.endChunk();
+    this.#target.dispatchMessage(endMessage);
+    yield endMessage;
+  }
+
+  asResponse() {
+    return this.#target.asResponse();
   }
 }
