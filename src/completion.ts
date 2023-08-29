@@ -81,6 +81,7 @@ export class ChatCompletionSSE extends ChatCompletion {
   override endChunk(finish_reason: "stop" | "length" = "stop") {
     const message = super.endChunk(finish_reason);
     this.#target.dispatchMessage(message);
+    this.#target.close();
     return message;
   }
 
@@ -91,19 +92,6 @@ export class ChatCompletionSSE extends ChatCompletion {
     const message = super.completion(content, finish_reason);
     this.#target.dispatchMessage(message);
     return message;
-  }
-
-  override async *pipe(iterable: AsyncIterable<string>): AsyncIterableIterator<
-    ReturnType<typeof ChatCompletion["prototype"]["chunk"]>
-  > {
-    for await (const chunk of iterable) {
-      const message = this.chunk(chunk);
-      this.#target.dispatchMessage(message);
-      yield message;
-    }
-    const endMessage = this.endChunk();
-    this.#target.dispatchMessage(endMessage);
-    yield endMessage;
   }
 
   asResponse() {
