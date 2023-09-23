@@ -9,7 +9,7 @@ import {
 import { TiktokenModel } from "./tokenizer.ts";
 import { randomChars } from "./utils.ts";
 
-export class ChatCompletion {
+class ChatCompletion {
   #id: string;
   #model: TiktokenModel;
   #prompt_tokens: number;
