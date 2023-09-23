@@ -1,4 +1,4 @@
-import { cachedEncoderFor, TiktokenModel } from "./tokenizer.ts";
+import { countToken, TiktokenModel } from "./tokenizer.ts";
 import { randomChars, timestamp } from "./utils.ts";
 
 export type ChatCompletionParams = {
@@ -18,9 +18,7 @@ export function chatCompletion({
   finish_reason = "stop",
   prompt_tokens = 0,
 }: ChatCompletionParams) {
-  const completion_tokens = content
-    ? cachedEncoderFor(model).encode(content).length
-    : 0;
+  const completion_tokens = content ? countToken(model, content) : 0;
 
   const total_tokens = prompt_tokens + completion_tokens;
 
