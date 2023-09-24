@@ -94,6 +94,10 @@ export class ChatCompletionSSE extends ChatCompletion {
     return message;
   }
 
+  close() {
+    return this.#target.close();
+  }
+
   asResponse() {
     return this.#target.asResponse();
   }

@@ -1,7 +1,7 @@
 import { Hono } from "https://deno.land/x/hono@v3.5.5/mod.ts";
 import "https://deno.land/std@0.200.0/dotenv/load.ts";
 import OpenAI from "https://esm.sh/openai@4.3.1";
-import { ChatCompletion, ChatCompletionSSE } from "./mod.ts";
+import { chatCompletion, ChatCompletionSSE } from "./mod.ts";
 
 const API_KEY = Deno.env.get("API_KEY");
 
@@ -24,8 +24,8 @@ app.post("/v1/chat/completions", async (ctx) => {
   if (!config.stream) {
     // Handle non-streaming
     const response = await openai.chat.completions.create(config);
-    return ctx.json(new ChatCompletion().completion(
-      response.choices[0].message.content ?? "",
+    return ctx.json(chatCompletion(
+      { content: response.choices[0].message.content ?? "" },
     ));
   }
 
