@@ -1,10 +1,10 @@
 import {
   getEncoding,
   getEncodingNameForModel,
-  Tiktoken,
-  TiktokenEncoding,
-  TiktokenModel,
-} from "https://esm.sh/js-tiktoken@1.0.7";
+  type Tiktoken,
+  type TiktokenEncoding,
+  type TiktokenModel,
+} from "npm:js-tiktoken@1.0.12";
 
 export type { TiktokenModel };
 

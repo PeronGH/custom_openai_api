@@ -1,8 +1,8 @@
 import {
   chatCompletionChunk,
-  ChatCompletionParams,
+  type ChatCompletionParams,
   completionChunk,
-  CompletionParams,
+  type CompletionParams,
 } from "./templates.ts";
 import { randomChars } from "./utils.ts";
 
@@ -29,7 +29,7 @@ async function* sse(
 export function chatCompletionStreamResponse(source: AsyncIterable<string>, {
   id = `chatcmpl-${randomChars()}`,
   model = "gpt-3.5-turbo",
-}: Pick<ChatCompletionParams, "id" | "model"> = {}) {
+}: Pick<ChatCompletionParams, "id" | "model"> = {}): Response {
   const getChunk = (content: string) =>
     chatCompletionChunk({
       id,
@@ -58,7 +58,7 @@ export function chatCompletionStreamResponse(source: AsyncIterable<string>, {
 export function completionStreamResponse(source: AsyncIterable<string>, {
   id = `chatcmpl-${randomChars()}`,
   model = "gpt-3.5-turbo",
-}: Pick<CompletionParams, "id" | "model"> = {}) {
+}: Pick<CompletionParams, "id" | "model"> = {}): Response {
   const getChunk = (text: string) =>
     completionChunk({
       id,
