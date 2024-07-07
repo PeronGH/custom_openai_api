@@ -8,6 +8,7 @@ export type ChatCompletionParams = {
   content?: string;
   finish_reason?: "stop" | "length" | null;
   prompt_tokens?: number;
+  completion_tokens?: number;
 };
 
 export type ChatCompletionChunkParams = Omit<
@@ -22,6 +23,7 @@ export type CompletionParams = {
   text?: string;
   finish_reason?: "stop" | "length" | null;
   prompt_tokens?: number;
+  completion_tokens?: number;
 };
 
 type Usage = {
@@ -92,8 +94,9 @@ export function chatCompletion({
   content,
   finish_reason = "stop",
   prompt_tokens = 0,
+  completion_tokens,
 }: ChatCompletionParams): ChatCompletionResponse {
-  const completion_tokens = content ? countToken(model, content) : 0;
+  completion_tokens ??= content ? countToken(model, content) : 0;
   const total_tokens = prompt_tokens + completion_tokens;
 
   return {
@@ -125,9 +128,10 @@ export function completion(
     text,
     finish_reason = "stop",
     prompt_tokens = 0,
+    completion_tokens,
   }: CompletionParams,
 ): CompletionResponse {
-  const completion_tokens = text ? countToken(model, text) : 0;
+  completion_tokens ??= text ? countToken(model, text) : 0;
   const total_tokens = prompt_tokens + completion_tokens;
 
   return {
